@@ -7,6 +7,8 @@ from sitecontent.views import (
 )
 from django.conf import settings
 from django.conf.urls.static import static
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+
 
 router = DefaultRouter()
 router.register(r"banner", BannerViewSet, basename="banner")
@@ -21,6 +23,8 @@ urlpatterns = [
     path("api/", include(router.urls)),
     path("api/about/", AboutView.as_view(), name="about"),
     path("api/contact/", ContactCreateView.as_view(), name="contact"),
+     path("api/auth/token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
+    path("api/auth/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
 ]
 
 if settings.DEBUG:
