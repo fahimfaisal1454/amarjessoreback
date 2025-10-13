@@ -7,17 +7,17 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 from sitecontent.views import (
     # Public
-    BannerViewSet, AboutView, ProgramViewSet, ImpactStatViewSet,
+    BannerViewSet, AboutView, ProjectViewSet, ImpactStatViewSet,
     StoryViewSet, NewsViewSet, ContactCreateView,
     # Admin (make sure this exists in sitecontent/views.py)
-    BannerAdminViewSet,
+    BannerAdminViewSet, ProjectAdminViewSet
 )
 
 # -------- Public API router (/api/...) --------
 public_router = DefaultRouter()
 public_router.register(r"banner", BannerViewSet, basename="banner")
-public_router.register(r"programs", ProgramViewSet, basename="programs")
-public_router.register(r"projects", ProgramViewSet, basename="projects")
+public_router.register(r"projects", ProjectViewSet, basename="projects")
+# public_router.register(r"projects", ProgramViewSet, basename="projects")
 public_router.register(r"impact", ImpactStatViewSet, basename="impact")
 public_router.register(r"stories", StoryViewSet, basename="stories")
 public_router.register(r"news", NewsViewSet, basename="news")
@@ -25,7 +25,7 @@ public_router.register(r"news", NewsViewSet, basename="news")
 # -------- Admin API router (/api/admin/...) --------
 admin_router = DefaultRouter()
 admin_router.register(r"banners", BannerAdminViewSet, basename="admin-banners")
-
+admin_router.register(r"projects", ProjectAdminViewSet, basename="admin-projects")
 urlpatterns = [
     path("admin/", admin.site.urls),
 

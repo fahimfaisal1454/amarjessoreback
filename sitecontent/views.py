@@ -6,8 +6,8 @@ from .models import (
     BannerSlide, AboutSection, Program, ImpactStat, Story, News, ContactMessage
 )
 from .serializers import (
-    BannerSlideSerializer, AboutSerializer, ProgramSerializer, ImpactStatSerializer,
-    StorySerializer, NewsSerializer, ContactMessageSerializer, BannerSlideAdminSerializer, ProgramAdminSerializer
+    BannerSlideSerializer, AboutSerializer,  ImpactStatSerializer,
+    StorySerializer, NewsSerializer, ContactMessageSerializer, BannerSlideAdminSerializer,  ProjectSerializer, ProjectAdminSerializer
 )
 
 # Home/Banner
@@ -73,21 +73,23 @@ class AboutAdminView(APIView):
         ser.save()
         return Response(ser.data, status=status.HTTP_200_OK)
 # Programs
-class ProgramViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Program.objects.filter(is_active=True).order_by("order", "id")
-    serializer_class = ProgramSerializer
-    permission_classes = [permissions.AllowAny]
+class ProjectViewSet(viewsets.ReadOnlyModelViewSet):
+  """
+  Public list of projects (backed by Program table).
+  """
+  queryset = Program.objects.filter(is_active=True).order_by("order", "id")
+  serializer_class = ProjectSerializer
+  permission_classes = [permissions.AllowAny]
 
 
-class ProgramAdminViewSet(viewsets.ModelViewSet):
-    """
-    /api/admin/programs/ CRUD for dashboard
-    """
-    queryset = Program.objects.all().order_by("order", "id")
-    serializer_class = ProgramAdminSerializer
-    permission_classes = [permissions.IsAuthenticated, permissions.IsAdminUser]
-    parser_classes = [MultiPartParser, FormParser, JSONParser]
-    
+class ProjectAdminViewSet(viewsets.ModelViewSet):
+  """
+  /api/admin/projects/  -> CRUD for dashboard
+  """
+  queryset = Program.objects.all().order_by("order", "id")  # still using Program model
+  serializer_class = ProjectAdminSerializer
+  permission_classes = [permissions.IsAuthenticated, permissions.IsAdminUser]
+  parser_classes = [MultiPartParser, FormParser, JSONParser]
     
 # Impact stats
 class ImpactStatViewSet(viewsets.ReadOnlyModelViewSet):

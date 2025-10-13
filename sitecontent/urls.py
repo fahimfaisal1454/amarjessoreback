@@ -1,5 +1,4 @@
-# project/urls.py  (replace the whole file with this)
-
+# aj_backend/urls.py
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
@@ -10,17 +9,17 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from sitecontent.views import (
     # Public
     BannerViewSet, AboutView, ProgramViewSet, ImpactStatViewSet,
-    StoryViewSet, NewsViewSet, ContactCreateView, 
+    StoryViewSet, NewsViewSet, ContactCreateView,
     # Admin
-    BannerAdminViewSet,        ProgramAdminViewSet,
-    AboutAdminView,            
+    BannerAdminViewSet, ProgramAdminViewSet,  # <-- add ProgramAdminViewSet
+    AboutAdminView,  ProjectViewSet, ProjectAdminViewSet,                         # <-- add AboutAdminView (single doc admin)
 )
 
 # -------- Public API router (/api/...) --------
 public_router = DefaultRouter()
 public_router.register(r"banner", BannerViewSet, basename="banner")
 public_router.register(r"programs", ProgramViewSet, basename="programs")
-public_router.register(r"projects", ProgramViewSet, basename="projects")  # alias
+public_router.register(r"projects", ProjectViewSet, basename="projects")  # alias
 public_router.register(r"impact", ImpactStatViewSet, basename="impact")
 public_router.register(r"stories", StoryViewSet, basename="stories")
 public_router.register(r"news", NewsViewSet, basename="news")
@@ -28,21 +27,21 @@ public_router.register(r"news", NewsViewSet, basename="news")
 # -------- Admin API router (/api/admin/...) --------
 admin_router = DefaultRouter()
 admin_router.register(r"banners", BannerAdminViewSet, basename="admin-banners")
-admin_router.register(r"programs", ProgramAdminViewSet, basename="admin-programs")
+admin_router.register(r"projects", ProjectAdminViewSet, basename="admin-projects")  # <-- this fixes 404
 
 urlpatterns = [
     path("admin/", admin.site.urls),
 
-    # --- ADMIN ROUTES FIRST (more specific) ---
+    # Admin FIRST (more specific)
     path("api/admin/", include(admin_router.urls)),
-    path("api/admin/about/", AboutAdminView.as_view(), name="admin-about"),  # <-- this is the missing route
+    path("api/admin/about/", AboutAdminView.as_view(), name="admin-about"),
 
-    # --- PUBLIC ROUTES AFTER (broader) ---
+    # Public AFTER (broader)
     path("api/", include(public_router.urls)),
     path("api/about/", AboutView.as_view(), name="about"),
     path("api/contact/", ContactCreateView.as_view(), name="contact"),
 
-    # JWT auth
+    # Auth
     path("api/auth/token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("api/auth/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
     path("api/auth/refresh/", TokenRefreshView.as_view(), name="token_refresh_alias"),

@@ -28,19 +28,25 @@ class AboutSerializer(serializers.ModelSerializer):
         model = AboutSection
         fields = ["badge_text", "heading", "highlight_words", "body", "points"]
 
-class ProgramSerializer(serializers.ModelSerializer):
+class ProjectSerializer(serializers.ModelSerializer):
+    """
+    Public serializer for 'projects' (uses Program model behind the scenes).
+    """
     class Meta:
         model = Program
-        fields = "__all__"
+        fields = ["id", "title", "slug", "summary", "icon", "image", "is_active", "order"]
 
-class ProgramAdminSerializer(serializers.ModelSerializer):
-    # ensure coercion when coming from multipart/form-data
-    is_active = serializers.BooleanField(required=False)
-    order = serializers.IntegerField(required=False, min_value=0)
+class ProjectAdminSerializer(serializers.ModelSerializer):
+    """
+    Admin serializer for 'projects' CRUD (still Program model).
+    """
+    image = serializers.ImageField(required=False, allow_null=True)
+    icon = serializers.CharField(required=False, allow_blank=True, allow_null=True)
+    slug = serializers.SlugField(required=False, allow_blank=True)
 
     class Meta:
         model = Program
-        fields = "__all__"
+        fields = ["id", "title", "slug", "summary", "icon", "image", "is_active", "order"]
         
         
 class ImpactStatSerializer(serializers.ModelSerializer):
