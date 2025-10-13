@@ -8,7 +8,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from sitecontent.views import (
     # Public
     BannerViewSet, AboutView, ProjectViewSet, ImpactStatViewSet,
-    StoryViewSet, NewsViewSet, 
+    StoryViewSet, NewsViewSet, ContactCreateView,  ContactInfoView,  
     # Admin (make sure this exists in sitecontent/views.py)
     BannerAdminViewSet, ProjectAdminViewSet, StoryAdminViewSet, NewsAdminViewSet, ContactAdminViewSet, ContactInfoAdminView,
 )
@@ -29,6 +29,7 @@ admin_router.register(r"projects", ProjectAdminViewSet, basename="admin-projects
 admin_router.register(r"stories", StoryAdminViewSet, basename="admin-stories")
 admin_router.register(r"news", NewsAdminViewSet, basename="admin-news")
 admin_router.register(r"contacts", ContactAdminViewSet, basename="admin-contacts")
+
 urlpatterns = [
     path("admin/", admin.site.urls),
 
@@ -38,7 +39,8 @@ urlpatterns = [
     # --- Public routes AFTER ---
     path("api/", include(public_router.urls)),
     path("api/about/", AboutView.as_view(), name="about"),
-    
+    path("api/contact/", ContactCreateView.as_view(), name="contact"),
+    path("api/contact-info/", ContactInfoView.as_view(), name="contact-info"),
 
     # --- JWT Auth endpoints ---
     path("api/auth/token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),

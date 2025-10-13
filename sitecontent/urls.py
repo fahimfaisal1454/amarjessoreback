@@ -9,7 +9,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from sitecontent.views import (
     # Public
     BannerViewSet, AboutView, ProgramViewSet, ImpactStatViewSet,
-    StoryViewSet, NewsViewSet, 
+    StoryViewSet, NewsViewSet, ContactCreateView,
     # Admin
     BannerAdminViewSet, StoryAdminViewSet, 
     AboutAdminView,  ProjectViewSet, ProjectAdminViewSet, NewsAdminViewSet                        
