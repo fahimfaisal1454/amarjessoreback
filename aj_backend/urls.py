@@ -1,30 +1,46 @@
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from sitecontent.views import (
-    BannerViewSet, AboutView, ProgramViewSet, ImpactStatViewSet,
-    StoryViewSet, NewsViewSet, ContactCreateView
-)
 from django.conf import settings
 from django.conf.urls.static import static
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
+from sitecontent.views import (
+    # Public
+    BannerViewSet, AboutView, ProgramViewSet, ImpactStatViewSet,
+    StoryViewSet, NewsViewSet, ContactCreateView,
+    # Admin (make sure this exists in sitecontent/views.py)
+    BannerAdminViewSet,
+)
 
-router = DefaultRouter()
-router.register(r"banner", BannerViewSet, basename="banner")
-router.register(r"programs", ProgramViewSet, basename="programs")   # keep old
-router.register(r"projects", ProgramViewSet, basename="projects")   # NEW alias
-router.register(r"impact", ImpactStatViewSet, basename="impact")
-router.register(r"stories", StoryViewSet, basename="stories")
-router.register(r"news", NewsViewSet, basename="news")
+# -------- Public API router (/api/...) --------
+public_router = DefaultRouter()
+public_router.register(r"banner", BannerViewSet, basename="banner")
+public_router.register(r"programs", ProgramViewSet, basename="programs")
+public_router.register(r"projects", ProgramViewSet, basename="projects")
+public_router.register(r"impact", ImpactStatViewSet, basename="impact")
+public_router.register(r"stories", StoryViewSet, basename="stories")
+public_router.register(r"news", NewsViewSet, basename="news")
+
+# -------- Admin API router (/api/admin/...) --------
+admin_router = DefaultRouter()
+admin_router.register(r"banners", BannerAdminViewSet, basename="admin-banners")
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("api/", include(router.urls)),
+
+    # --- Admin routes FIRST ---
+    path("api/admin/", include(admin_router.urls)),
+
+    # --- Public routes AFTER ---
+    path("api/", include(public_router.urls)),
     path("api/about/", AboutView.as_view(), name="about"),
     path("api/contact/", ContactCreateView.as_view(), name="contact"),
-     path("api/auth/token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
-    path("api/auth/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
+
+    # --- JWT Auth endpoints ---
+    path("api/auth/token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
+    path("api/auth/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
+    path("api/auth/refresh/", TokenRefreshView.as_view(), name="token_refresh_alias"),
 ]
 
 if settings.DEBUG:

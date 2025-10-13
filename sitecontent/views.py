@@ -1,12 +1,13 @@
 from rest_framework import viewsets, permissions, generics
 from rest_framework.views import APIView
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework.response import Response
 from .models import (
     BannerSlide, AboutSection, Program, ImpactStat, Story, News, ContactMessage
 )
 from .serializers import (
     BannerSlideSerializer, AboutSerializer, ProgramSerializer, ImpactStatSerializer,
-    StorySerializer, NewsSerializer, ContactMessageSerializer
+    StorySerializer, NewsSerializer, ContactMessageSerializer, BannerSlideAdminSerializer, ProgramAdminSerializer
 )
 
 # Home/Banner
@@ -15,9 +16,21 @@ class BannerViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = BannerSlideSerializer
     permission_classes = [permissions.AllowAny]
 
+class BannerAdminViewSet(viewsets.ModelViewSet):
+    """
+    /api/admin/banners/  -> list, create
+    /api/admin/banners/{id}/ -> retrieve, update/partial_update, delete
+    """
+    queryset = BannerSlide.objects.all().order_by("order", "id")
+    serializer_class = BannerSlideAdminSerializer
+    permission_classes = [permissions.IsAuthenticated, permissions.IsAdminUser]
+    parser_classes = [MultiPartParser, FormParser, JSONParser]    
+
 # About (single)
 class AboutView(APIView):
+    permission_classes = [permissions.AllowAny]
     def get(self, request):
+        
         about = AboutSection.objects.order_by("-updated_at").first()
         if not about:
             return Response({
@@ -29,12 +42,53 @@ class AboutView(APIView):
             })
         return Response(AboutSerializer(about).data)
 
+
+class AboutAdminView(APIView):
+    permission_classes = [permissions.IsAuthenticated, permissions.IsAdminUser]
+
+    def _get(self):
+        obj, _ = AboutSection.objects.get_or_create(
+            pk=1,
+            defaults={"badge_text": "", "heading": "", "highlight_words": [], "body": "", "points": []},
+        )
+        return obj
+
+    def get(self, request):
+        return Response(AboutSerializer(self._get()).data)
+
+    def put(self, request):
+        about = self._get()
+        data = request.data.copy()
+
+        to_list = lambda v, sep: v if isinstance(v, list) else (
+            [s for s in map(str.strip, (json.loads(v) if isinstance(v, str) and v.strip().startswith("[") else v.split(sep))) if s]
+            if isinstance(v, str) else []
+        )
+
+        data["highlight_words"] = to_list(data.get("highlight_words", []), ",")
+        data["points"] = to_list(data.get("points", []), "\n")
+
+        ser = AboutSerializer(about, data=data)
+        ser.is_valid(raise_exception=True)
+        ser.save()
+        return Response(ser.data, status=status.HTTP_200_OK)
 # Programs
 class ProgramViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Program.objects.filter(is_active=True).order_by("order", "id")
     serializer_class = ProgramSerializer
     permission_classes = [permissions.AllowAny]
 
+
+class ProgramAdminViewSet(viewsets.ModelViewSet):
+    """
+    /api/admin/programs/ CRUD for dashboard
+    """
+    queryset = Program.objects.all().order_by("order", "id")
+    serializer_class = ProgramAdminSerializer
+    permission_classes = [permissions.IsAuthenticated, permissions.IsAdminUser]
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
+    
+    
 # Impact stats
 class ImpactStatViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = ImpactStat.objects.all().order_by("order", "id")

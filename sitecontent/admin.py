@@ -52,10 +52,16 @@ class AboutSectionForm(forms.ModelForm):
 
 
 # ---------- All other admin classes (unchanged) ----------
+from django.contrib import admin
+from .models import BannerSlide
+
 @admin.register(BannerSlide)
-class BannerAdmin(admin.ModelAdmin):
-    list_display = ("title", "order", "is_active")
+class BannerSlideAdmin(admin.ModelAdmin):
+    list_display = ("id", "title", "order", "is_active", "cta_text", "cta_href")
     list_editable = ("order", "is_active")
+    search_fields = ("title", "subtitle", "cta_text", "cta_href")
+    list_filter = ("is_active",)
+
 
 
 @admin.register(AboutSection)
