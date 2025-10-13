@@ -8,9 +8,9 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from sitecontent.views import (
     # Public
     BannerViewSet, AboutView, ProjectViewSet, ImpactStatViewSet,
-    StoryViewSet, NewsViewSet, ContactCreateView,
+    StoryViewSet, NewsViewSet, 
     # Admin (make sure this exists in sitecontent/views.py)
-    BannerAdminViewSet, ProjectAdminViewSet
+    BannerAdminViewSet, ProjectAdminViewSet, StoryAdminViewSet, NewsAdminViewSet, ContactAdminViewSet, ContactInfoAdminView,
 )
 
 # -------- Public API router (/api/...) --------
@@ -26,16 +26,19 @@ public_router.register(r"news", NewsViewSet, basename="news")
 admin_router = DefaultRouter()
 admin_router.register(r"banners", BannerAdminViewSet, basename="admin-banners")
 admin_router.register(r"projects", ProjectAdminViewSet, basename="admin-projects")
+admin_router.register(r"stories", StoryAdminViewSet, basename="admin-stories")
+admin_router.register(r"news", NewsAdminViewSet, basename="admin-news")
+admin_router.register(r"contacts", ContactAdminViewSet, basename="admin-contacts")
 urlpatterns = [
     path("admin/", admin.site.urls),
 
     # --- Admin routes FIRST ---
     path("api/admin/", include(admin_router.urls)),
-
+    path("api/admin/contact-info/", ContactInfoAdminView.as_view(), name="admin-contact-info"),
     # --- Public routes AFTER ---
     path("api/", include(public_router.urls)),
     path("api/about/", AboutView.as_view(), name="about"),
-    path("api/contact/", ContactCreateView.as_view(), name="contact"),
+    
 
     # --- JWT Auth endpoints ---
     path("api/auth/token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),

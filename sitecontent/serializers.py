@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from .models import (
-    BannerSlide, AboutSection, Program, ImpactStat, Story, News, ContactMessage
+    BannerSlide, AboutSection, Program, ImpactStat, Story, News, ContactMessage, ContactInfo
 )
 
 class BannerSlideSerializer(serializers.ModelSerializer):
@@ -67,5 +67,9 @@ class NewsSerializer(serializers.ModelSerializer):
 class ContactMessageSerializer(serializers.ModelSerializer):
     class Meta:
         model = ContactMessage
-        fields = "__all__"
-        read_only_fields = ["created_at"]
+        fields = ["id", "name", "email", "phone", "subject", "message", "created_at"]
+
+class ContactInfoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ContactInfo
+        fields = ["email", "phone", "address", "hours", "updated_at"]

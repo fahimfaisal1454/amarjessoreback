@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django import forms
 from .models import (
-    BannerSlide, AboutSection, Program, ImpactStat, Story, News, ContactMessage
+    BannerSlide, AboutSection, Program, ImpactStat, Story, News, ContactMessage, ContactInfo
 )
 
 # ---------- AboutSection: simple plain-text fields ----------
@@ -96,7 +96,15 @@ class NewsAdmin(admin.ModelAdmin):
     prepopulated_fields = {"slug": ("title",)}
 
 
+
+
+
 @admin.register(ContactMessage)
 class ContactMessageAdmin(admin.ModelAdmin):
-    list_display = ("name", "email", "subject", "created_at")
+    list_display = ("name", "email", "phone", "subject", "created_at")
     search_fields = ("name", "email", "subject", "message")
+    readonly_fields = ("name", "email", "phone", "subject", "message", "created_at")
+
+@admin.register(ContactInfo)
+class ContactInfoAdmin(admin.ModelAdmin):
+    list_display = ("email", "phone", "updated_at")

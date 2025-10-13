@@ -9,11 +9,11 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from sitecontent.views import (
     # Public
     BannerViewSet, AboutView, ProgramViewSet, ImpactStatViewSet,
-    StoryViewSet, NewsViewSet, ContactCreateView,
+    StoryViewSet, NewsViewSet, 
     # Admin
-    BannerAdminViewSet, ProgramAdminViewSet,  # <-- add ProgramAdminViewSet
-    AboutAdminView,  ProjectViewSet, ProjectAdminViewSet,                         # <-- add AboutAdminView (single doc admin)
-)
+    BannerAdminViewSet, StoryAdminViewSet, 
+    AboutAdminView,  ProjectViewSet, ProjectAdminViewSet, NewsAdminViewSet                        
+) 
 
 # -------- Public API router (/api/...) --------
 public_router = DefaultRouter()
@@ -28,7 +28,8 @@ public_router.register(r"news", NewsViewSet, basename="news")
 admin_router = DefaultRouter()
 admin_router.register(r"banners", BannerAdminViewSet, basename="admin-banners")
 admin_router.register(r"projects", ProjectAdminViewSet, basename="admin-projects")  # <-- this fixes 404
-
+admin_router.register(r"stories", StoryAdminViewSet, basename="admin-stories")
+admin_router.register(r"news", NewsAdminViewSet, basename="admin-news")
 urlpatterns = [
     path("admin/", admin.site.urls),
 
@@ -39,7 +40,7 @@ urlpatterns = [
     # Public AFTER (broader)
     path("api/", include(public_router.urls)),
     path("api/about/", AboutView.as_view(), name="about"),
-    path("api/contact/", ContactCreateView.as_view(), name="contact"),
+
 
     # Auth
     path("api/auth/token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
