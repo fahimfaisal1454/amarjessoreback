@@ -17,15 +17,13 @@ class BannerSlide(models.Model):
 # 2) About
 class AboutSection(models.Model):
     badge_text = models.CharField(max_length=80, blank=True, default="")
-    heading = models.CharField(max_length=200)
-    highlight_words = models.JSONField(blank=True, null=True)
-    body = models.TextField(blank=True, default="")
-    points = models.JSONField(blank=True, null=True)   # <--- 3 bullets here
+    heading    = models.CharField(max_length=200, blank=True, default="")
+    body       = models.TextField(blank=True, default="")
+    image      = models.ImageField(upload_to="about/", blank=True, null=True)  # <-- NEW
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return self.heading
-
+        return self.heading or "About Section"
 # 3) Programs / Projects (grid)
 class Program(models.Model):
     title = models.CharField(max_length=140)

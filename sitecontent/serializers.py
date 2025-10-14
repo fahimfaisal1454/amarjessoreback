@@ -23,10 +23,23 @@ class BannerSlideAdminSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("CTA link must not contain spaces")
         return v
 
-class AboutSerializer(serializers.ModelSerializer):
+class AboutSectionSerializer(serializers.ModelSerializer):
+    image_url = serializers.SerializerMethodField()
+
     class Meta:
         model = AboutSection
-        fields = ["badge_text", "heading", "highlight_words", "body", "points"]
+        fields = ["id", "badge_text", "heading", "body", "image", "image_url", "updated_at"]
+        extra_kwargs = {
+            # If you prefer returning only URLs and not base64/files, you can set:
+            "image": {"write_only": True, "required": False}
+        }
+
+    def get_image_url(self, obj):
+        request = self.context.get("request")
+        if obj.image and hasattr(obj.image, "url"):
+            url = obj.image.url
+            return request.build_absolute_uri(url) if request else url
+        return None
 
 class ProjectSerializer(serializers.ModelSerializer):
     """

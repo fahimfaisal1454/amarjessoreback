@@ -6,7 +6,7 @@ from .models import (
     BannerSlide, AboutSection, Program, ImpactStat, Story, News,  ContactMessage, ContactInfo
 )
 from .serializers import (
-    BannerSlideSerializer, AboutSerializer,  ImpactStatSerializer,
+    BannerSlideSerializer, AboutSectionSerializer,  ImpactStatSerializer,
     StorySerializer, NewsSerializer,  BannerSlideAdminSerializer,  ProjectSerializer, ProjectAdminSerializer, ContactMessageSerializer, ContactInfoSerializer, 
 )
 
@@ -27,48 +27,38 @@ class BannerAdminViewSet(viewsets.ModelViewSet):
     parser_classes = [MultiPartParser, FormParser, JSONParser]    
 
 # About (single)
-class AboutView(APIView):
-    permission_classes = [permissions.AllowAny]
-    def get(self, request):
-        
-        about = AboutSection.objects.order_by("-updated_at").first()
-        if not about:
-            return Response({
-                "badge_text": "",
-                "heading": "",
-                "highlight_words": [],
-                "body": "",
-                "points": [],
-            })
-        return Response(AboutSerializer(about).data)
+def get_single_about():
+    about, _ = AboutSection.objects.get_or_create(pk=1)
+    return about
 
+class AboutView(APIView):
+    """Public GET for About section"""
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request):
+        a = get_single_about()
+        ser = AboutSectionSerializer(a, context={"request": request})
+        # minimal shape for frontend
+        data = ser.data
+        return Response({
+            "badge_text": data["badge_text"],
+            "heading": data["heading"],
+            "body": data["body"],
+            "image_url": data["image_url"],  # <-- URL for the frontend <img src=... />
+        })
 
 class AboutAdminView(APIView):
     permission_classes = [permissions.IsAuthenticated, permissions.IsAdminUser]
-
-    def _get(self):
-        obj, _ = AboutSection.objects.get_or_create(
-            pk=1,
-            defaults={"badge_text": "", "heading": "", "highlight_words": [], "body": "", "points": []},
-        )
-        return obj
+    parser_classes = [MultiPartParser, FormParser, JSONParser]  # <-- accept file uploads
 
     def get(self, request):
-        return Response(AboutSerializer(self._get()).data)
+        about = get_single_about()
+        ser = AboutSectionSerializer(about, context={"request": request})
+        return Response(ser.data)
 
     def put(self, request):
-        about = self._get()
-        data = request.data.copy()
-
-        to_list = lambda v, sep: v if isinstance(v, list) else (
-            [s for s in map(str.strip, (json.loads(v) if isinstance(v, str) and v.strip().startswith("[") else v.split(sep))) if s]
-            if isinstance(v, str) else []
-        )
-
-        data["highlight_words"] = to_list(data.get("highlight_words", []), ",")
-        data["points"] = to_list(data.get("points", []), "\n")
-
-        ser = AboutSerializer(about, data=data)
+        about = get_single_about()
+        ser = AboutSectionSerializer(about, data=request.data, partial=True, context={"request": request})
         ser.is_valid(raise_exception=True)
         ser.save()
         return Response(ser.data, status=status.HTTP_200_OK)
